@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, Vec3 } from 'cc';
+import { _decorator, Component, Node, ParticleSystemComponent, Vec3 } from 'cc';
 import { RoadPoint } from './RoadPoint';
 import { Constant }  from './constant/Constant';
 import { CustomEventListener } from './CustomEventListener';
+import { AudioManager } from './AudioManager';
 const { ccclass, property } = _decorator;
 
 const _tempVec = new Vec3;
@@ -28,6 +29,8 @@ export class Car extends Component {
 
     private _acceleration = 0.2;
     private _inOrder = false;
+    private _isBraking = false;
+    private _gas: ParticleSystemComponent = null;
 
     public setEntry(point: Node, isMain: boolean) {
         this.node.setWorldPosition(point.worldPosition);
@@ -56,6 +59,12 @@ export class Car extends Component {
                 this.node.eulerAngles = new Vec3(0, 90, 0);
             }
         }
+
+        if (this._isMain) {
+            const gasNode = this.node.getChildByName('gas');
+            this._gas = gasNode.getComponent(ParticleSystemComponent);
+            this._gas.play();
+        }
     }
 
     public start() {
@@ -74,7 +83,12 @@ export class Car extends Component {
         }
 
         if (this._curSpeed <= 0.0001) {
+            AudioManager.playSound(Constant.AudioSource.STOP);
             this._isRunning = false;
+            if (this._isBraking) {
+                this._isBraking = false;
+                CustomEventListener.dispatch(EventName.END_BRAKING);
+            }
         }
 
         switch(this._curPoint.moveType) {
@@ -155,6 +169,10 @@ export class Car extends Component {
     public stopRunning() {
         this._acceleration = -0.3;
         // this._isRunning = false;
+        CustomEventListener.dispatch(EventName.START_BRAKING, this.node);
+        this._isBraking = true;
+        AudioManager.playSound(Constant.AudioSource.STOP);
+        this._gas.stop();
     }
 
     private _arrivalStation() {
@@ -167,10 +185,17 @@ export class Car extends Component {
 
             // Interact with customer
             if (this._isMain) {
+                if (this._isBraking) {
+                    this._isBraking = false;
+                    CustomEventListener.dispatch(EventName.END_BRAKING);
+                }
+
                 if (this._curPoint.type === RoadPoint.RoadPointType.GREETING) {
                     this._greetingCustomer();
                 } else if (this._curPoint.type === RoadPoint.RoadPointType.GOODBYE) {
                     this._goodbyeCustomer();
+                } else if (this._curPoint.type === RoadPoint.RoadPointType.END) {
+                    AudioManager.playSound(Constant.AudioSource.WIN);
                 }
             }
 
@@ -218,16 +243,21 @@ export class Car extends Component {
         this._inOrder = true;
         this._curSpeed = 0;
         CustomEventListener.dispatch(EventName.GREETING, this.node.worldPosition, this._curPoint.direction);
+        this._gas.stop();
     }
 
     private _goodbyeCustomer() {
         this._inOrder = true;
         this._curSpeed = 0;
         CustomEventListener.dispatch(EventName.GOODBYE, this.node.worldPosition, this._curPoint.direction);
+        this._gas.stop();
+        CustomEventListener.dispatch(EventName.START_COIN, this.node.worldPosition);
+        AudioManager.playSound(Constant.AudioSource.STOP);
     }
 
     private _finishOrder() {
         this._inOrder = false;
+        this._gas.play();
     }
 }
 

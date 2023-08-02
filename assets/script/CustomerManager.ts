@@ -1,6 +1,7 @@
 import { _decorator, AnimationComponent, Component, Node, Vec3 } from 'cc';
 import { CustomEventListener } from './CustomEventListener';
 import { Constant }  from './constant/Constant';
+import { AudioManager } from './AudioManager';
 
 const { ccclass, property } = _decorator;
 const EventName = Constant.EventName;
@@ -38,6 +39,10 @@ export class CustomerManagement extends Component {
                 this._curCustomer.active = false;
                 if (this._state === Constant.CustomerState.GOODBYE) {
                     this._curCustomer = null;
+                }
+
+                if (this._state === Constant.CustomerState.GREETING) {
+                    AudioManager.playSound(Constant.AudioSource.IN_CAR);
                 }
                 CustomEventListener.dispatch(EventName.FINISHWALK);
             } else {
@@ -121,6 +126,7 @@ export class CustomerManagement extends Component {
         
         const aniComp = this._curCustomer.getComponent(AnimationComponent);
         aniComp.play('walk');
+        AudioManager.playSound(Constant.AudioSource.GET_MONEY);
     }
 }
 
