@@ -30,11 +30,18 @@ enum AudioSource {
     WIN = 'win',
 }
 
+enum CarGroup {
+    NORMAL = 1 << 0,
+    MAIN = 1 << 1,
+    OTHER = 1 << 2,
+}
+
 @ccclass('Constant')
 export class Constant {
     public static EventName = EventName;
     public static CustomerState = CustomerState;
     public static AudioSource = AudioSource;
+    public static CarGroup = CarGroup;
 }
 
 

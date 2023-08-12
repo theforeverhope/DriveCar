@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, ParticleSystemComponent, Vec3 } from 'cc';
+import { _decorator, BoxCollider, BoxColliderComponent, Component, ICollisionEvent, Node, ParticleSystemComponent, RigidBody, Vec3 } from 'cc';
 import { RoadPoint } from './RoadPoint';
 import { Constant }  from './constant/Constant';
 import { CustomEventListener } from './CustomEventListener';
@@ -32,7 +32,9 @@ export class Car extends Component {
     private _isBraking = false;
     private _gas: ParticleSystemComponent = null;
 
-    public setEntry(point: Node, isMain: boolean) {
+    private _overCD: Function = null;
+
+    public setEntry(point: Node, isMain: boolean = false) {
         this.node.setWorldPosition(point.worldPosition);
         this._curPoint = point.getComponent(RoadPoint);
         this._isMain = isMain;
@@ -60,10 +62,19 @@ export class Car extends Component {
             }
         }
 
+        const collider = this.node.getComponent(BoxColliderComponent);
+        const rigidBody = this.node.getComponent(RigidBody);
         if (this._isMain) {
             const gasNode = this.node.getChildByName('gas');
             this._gas = gasNode.getComponent(ParticleSystemComponent);
             this._gas.play();
+
+            collider.on('onCollisionEnter', this._onCollisionEnter, this);
+            collider.setGroup(Constant.CarGroup.MAIN);
+            collider.setMask(Constant.CarGroup.OTHER);
+        } else {
+            collider.setGroup(Constant.CarGroup.OTHER);
+            collider.setMask(-1);
         }
     }
 
@@ -75,7 +86,7 @@ export class Car extends Component {
         if (!this._isRunning || this._inOrder) {
             return;
         }
-
+        
         this._offset.set(this.node.worldPosition);
         this._curSpeed += this._acceleration * dt;
         if (this._curSpeed > this.maxSpeed) {
@@ -153,7 +164,7 @@ export class Car extends Component {
 
         // arrival judgement
         Vec3.subtract(_tempVec, this._pointB, this._offset);
-        if (_tempVec.length() <= 0.02) {
+        if (_tempVec.length() <= 0.02 || (!this._isMain && _tempVec.length() < 0.3)) {
             this._arrivalStation()
         }
     }
@@ -175,10 +186,13 @@ export class Car extends Component {
         this._gas.stop();
     }
 
+    public moveAfterFinish(cd: Function) {
+        this._overCD = cd;
+    }
+
     private _arrivalStation() {
         this._pointA.set(this._pointB);
-        this._curPoint = this._curPoint.nextStation.getComponent(RoadPoint);
-        // console.log(" arrival ----------------", this._curPoint.name, this._curPoint.nextStation.name)
+        this._curPoint = this._curPoint?.nextStation.getComponent(RoadPoint);
 
         if (this._curPoint.nextStation) {
             this._pointB.set(this._curPoint.nextStation.worldPosition)
@@ -227,6 +241,10 @@ export class Car extends Component {
         } else {
             this._isRunning = false;
             this._curPoint = null;
+            if (this._overCD) {
+                this._overCD(this);
+                this._overCD = null;
+            } 
         }
     }
 
@@ -256,8 +274,14 @@ export class Car extends Component {
     }
 
     private _finishOrder() {
-        this._inOrder = false;
-        this._gas.play();
+        if (this._isMain) {
+            this._inOrder = false;
+            this._gas.play();
+        }
+    }
+
+    private _onCollisionEnter(event: ICollisionEvent) {
+        console.log('_onCollisionEnter')
     }
 }
 

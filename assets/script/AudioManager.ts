@@ -6,7 +6,6 @@ export class AudioManager {
     public static playMusic(name: string) {
         const path = `audio/music/${name}`;
         loader.loadRes(path, AudioClip, (err: any, source: AudioClip) => {
-            console.log('load music --------------- ', path, err, source)
             if (err) {
                 console.warn(err);
                 return;

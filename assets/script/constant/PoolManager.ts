@@ -16,7 +16,7 @@ export class PoolManager extends Component {
     public static getNode(prefab: Prefab, parent: Node) {
         const name = prefab.name;
         let node: Node = null;
-
+        
         if (this.handle.has(name)) {
             node = this.handle.get(name).pop();
         } else {
@@ -29,6 +29,8 @@ export class PoolManager extends Component {
 
     public static setNode(target: Node) {
         const name = target.name;
+        target.parent = null;
+
         if (this.handle.has(name)) {
             this.handle.get(name).push(target);
         } else {
