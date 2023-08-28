@@ -54,7 +54,8 @@ export class CustomerManagement extends Component {
     }
 
     private _greetingCustomer(...args: any[]) {
-        this._curCustomer = this.customers[Math.floor(Math.random() * this.customers.length)];
+        const index = Math.floor(Math.random() * this.customers.length);
+        this._curCustomer = this.customers[index];
         console.log(this._curCustomer.name);
         this._inOrder = true;
         this._state = Constant.CustomerState.GREETING;
@@ -89,6 +90,9 @@ export class CustomerManagement extends Component {
 
         const aniComp = this._curCustomer.getComponent(AnimationComponent);
         aniComp.play('walk');
+
+        AudioManager.playSound(Constant.AudioSource.NEW_ORDER);
+        CustomEventListener.dispatch(Constant.EventName.SHOW_TALK, index+1);
     }
 
     private _goodbyeCustomer(...args: any[]) {

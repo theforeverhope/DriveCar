@@ -8,6 +8,11 @@ enum EventName {
     START_BRAKING = 'start-braking',
     END_BRAKING = 'end-braking',
     START_COIN = 'start-coin',
+    GAME_START = 'game-start',
+    GAME_OVER = 'game-over',
+    NEW_LEVEL = 'new-level',
+    SHOW_TALK = 'show-talk',
+    SHOW_GUIDE = 'show-guide',
 }
 
 enum CustomerState {
@@ -42,6 +47,16 @@ export class Constant {
     public static CustomerState = CustomerState;
     public static AudioSource = AudioSource;
     public static CarGroup = CarGroup;
+    public static TalkTable = [
+        'Please hurry up. \n I have a plane to catch.',
+        'The most beautiful day. \n Is not a rainy day.'
+    ]
+
+    public static UIPage = {
+        mainUI: 'mainUI',
+        gameUI: 'gameUI',
+        resultUI: 'resultUI'
+    }
 }
 
 

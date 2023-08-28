@@ -8,13 +8,7 @@ export class GameMap extends Component {
     })
     path: Node[] = [];
 
-    start() {
-
-    }
-
-    update(deltaTime: number) {
-        
-    }
+    public maxProgress = 3;
 }
 
 

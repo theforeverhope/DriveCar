@@ -34,15 +34,15 @@ export class EffectManager extends Component {
     }
 
     private _startBraking(...args: any[]) {
-        const folow = this._followTarget = args[0];
+        const follow = this._followTarget = args[0];
         this._curBraking = PoolManager.getNode(this.brake, this.node);
-        this._curBraking.setWorldPosition(folow);
+        this._curBraking.setWorldPosition(follow);
         ParticleUtils.play(this._curBraking); // play all particles animation
     }
 
     private _endBraking() {
         const curBraking = this._curBraking;
-        ParticleUtils.stop(this._curBraking); // stop all particles animation
+        ParticleUtils.stop(curBraking); // stop all particles animation
         this.scheduleOnce(() => {
             PoolManager.setNode(curBraking);
         }, 2);
