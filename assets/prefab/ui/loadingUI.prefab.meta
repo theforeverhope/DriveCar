@@ -2,12 +2,12 @@
   "ver": "1.1.43",
   "importer": "prefab",
   "imported": true,
-  "uuid": "21417232-a652-4585-8135-d2886bb27b4b",
+  "uuid": "61c8872b-910d-40fd-9a4c-887bc3965907",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "map101"
+    "syncNodeName": "loadingUI"
   }
 }

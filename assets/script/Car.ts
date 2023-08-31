@@ -233,7 +233,6 @@ export class Car extends Component {
                 CustomEventListener.dispatch(EventName.END_BRAKING);
             }
 
-            console.log('arrivalStation ======= ', this._curPoint.type, this._curPoint.name)
             if (this._curPoint.type === RoadPoint.RoadPointType.GREETING) {
                 this._greetingCustomer();
             } else if (this._curPoint.type === RoadPoint.RoadPointType.GOODBYE) {

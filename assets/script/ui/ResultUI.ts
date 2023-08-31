@@ -1,5 +1,5 @@
 import { _decorator, Component, LabelComponent, SpriteComponent, SpriteFrame } from 'cc';
-import { RunTimeData } from '../constant/RunTimeData';
+import { PlayerData, RunTimeData } from '../constant/RunTimeData';
 import { CustomEventListener } from '../CustomEventListener';
 import { Constant } from '../constant/Constant';
 const { ccclass, property } = _decorator;
@@ -101,12 +101,13 @@ export class resultUI extends Component {
             }
         }
 
-        this.sourceLevel.string = '' + curProgress;
-        this.targetLevel.string = '' + maxProgress;
+        const level = runtimeData.curLevel;
+        this.sourceLevel.string = `${level}`;
+        this.targetLevel.string = `${level+1}`;
         this.sourceSp.spriteFrame = this.levelFinished;
         this.targetSp.spriteFrame = curProgress === maxProgress ? this.levelFinished : this.levelUnFinished;
         this.progressLabel.string = `你完成了 ${curProgress} 个订单`;
-        this.moneyLabel.string = '' + money;
+        this.moneyLabel.string = `${money}`;
     }
 
     public hide() {
@@ -115,6 +116,10 @@ export class resultUI extends Component {
     }
 
     public getBtnNormal() {
+        const runtimeData = RunTimeData.instance();
+        if (runtimeData.curProgress === runtimeData.maxProgress) {
+            PlayerData.instance().passLevel(RunTimeData.instance().money);
+        }
         CustomEventListener.dispatch(Constant.EventName.NEW_LEVEL);
     }
 }
